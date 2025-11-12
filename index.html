@@ -1,227 +1,122 @@
 <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ta">
 <head>
   <meta charset="UTF-8">
-  <title>Order Now A to Z</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil&display=swap" rel="stylesheet">
-  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+  <title>PWA Icon Generator</title>
   <style>
     body {
-      font-family: 'Noto Sans Tamil', sans-serif;
-      background: #e0f7fa;
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      background: #f2f2f2;
       margin: 0;
-      padding: 20px;
+      padding: 40px 10px;
     }
-
-    .container {
-      max-width: 700px;
-      margin: auto;
-      background: #ffffff;
-      padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    h1 {
+      color: #1a73e8;
     }
-
-    h2 {
-      text-align: center;
-      color: #00695c;
-      margin-bottom: 20px;
+    input[type="file"] {
+      margin-top: 20px;
     }
-
-    input, button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 8px;
-      margin-bottom: 15px;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      font-size: 15px;
-    }
-
     button {
-      background-color: #00695c;
+      background: #1a73e8;
       color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 8px;
+      margin-top: 20px;
       cursor: pointer;
+      transition: 0.3s;
     }
-
     button:hover {
-      background-color: #004d40;
+      background: #0f5edc;
     }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
+    button:disabled {
+      background: #aaa;
     }
-
-    th, td {
-      border: 1px solid #ccc;
-      padding: 10px;
-      text-align: center;
-    }
-
-    th {
-      background-color: #b2dfdb;
-      color: #004d40;
-    }
-
-    .bill-section {
+    canvas {
       display: none;
-      margin-top: 30px;
     }
-
-    .petrol-row td {
-      font-weight: bold;
-      color: #e65100;
+    .preview {
+      margin-top: 20px;
     }
-
-    .total-row td {
-      font-weight: bold;
-      font-size: 17px;
-      color: #1b5e20;
-    }
-
-    @media (max-width: 600px) {
-      input, button {
-        font-size: 14px;
-      }
+    .preview img {
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     }
   </style>
 </head>
 <body>
+  <h1>PWA Icon Generator</h1>
+  <p>உங்கள் App Icon photo வை upload பண்ணுங்க 👇</p>
+  <input type="file" id="upload" accept="image/*">
+  <br>
+  <button id="download" disabled>Generate & Download All Sizes</button>
+  <div class="preview" id="preview"></div>
+  <canvas id="canvas"></canvas>
 
-<div class="container">
-  <h2>🛒 Order Now A to Z</h2>
+  <script>
+    const sizes = [128, 144, 152, 192, 256, 512];
+    const upload = document.getElementById('upload');
+    const downloadBtn = document.getElementById('download');
+    const preview = document.getElementById('preview');
+    let imageFile = null;
 
-  <label>Name :</label>
-  <input type="text" id="name" placeholder="பெயர் பதிவு செய்யவும்">
-
-  <label>Phone :</label>
-  <input type="text" id="phone" placeholder="மொபைல் எண் பதிவு செய்யவும்">
-
-  <label>Address :</label>
-  <input type="text" id="address" placeholder="முகவரி பதிவு செய்யவும்">
-
-  <label>Petrol Charge (₹):</label>
-  <input type="number" id="petrol" value="100">
-
-  <label>பொருள் :</label>
-  <input type="text" id="itemName" placeholder="எ.கா: நபி">
-
-  <label>Qty :</label>
-  <input type="number" id="itemQty" placeholder="எ.கா: 1">
-
-  <label>Rate (₹):</label>
-  <input type="number" id="itemRate" placeholder="எ.கா: 50">
-
-  <button onclick="addItem()">➕ Add Item</button>
-
-  <div id="itemList"></div>
-
-  <button onclick="generateBill()">🧾 Generate Bill</button>
-
-  <div class="bill-section" id="billSection">
-    <div id="billArea" style="padding:20px; border-radius:10px; background:#ffffff; margin-top:20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-      <h2 style="text-align:center; color:#00695c;">🛒 Order Now A to Z</h2>
-      <p><b>Name :</b> <span id="billName"></span></p>
-      <p><b>Phone :</b> <span id="billPhone"></span></p>
-      <p><b>Address :</b> <span id="billAddress"></span></p>
-      <p><b>Date :</b> <span id="billDate"></span></p>
-
-      <table id="billTable">
-        <thead>
-          <tr>
-            <th>பொருள்</th>
-            <th>Qty</th>
-            <th>Rate</th>
-            <th>Total</th>
-          </tr>
-        </thead>
-        <tbody id="billItems"></tbody>
-        <tr class="petrol-row">
-          <td colspan="3">⛽ Petrol Charge</td>
-          <td id="petrolCharge">₹0</td>
-        </tr>
-        <tr class="total-row">
-          <td colspan="3">Total</td>
-          <td id="totalAmount">₹0</td>
-        </tr>
-      </table>
-    </div>
-
-    <button id="downloadBtn" style="margin-top:20px;">📥 Download Bill Image</button>
-  </div>
-</div>
-
-<script>
-  let items = [];
-
-  function addItem() {
-    const name = document.getElementById("itemName").value;
-    const qty = parseInt(document.getElementById("itemQty").value);
-    const rate = parseFloat(document.getElementById("itemRate").value);
-
-    if (name && qty > 0 && rate > 0) {
-      items.push({ name, qty, rate });
-      displayItems();
-      document.getElementById("itemName").value = "";
-      document.getElementById("itemQty").value = "";
-      document.getElementById("itemRate").value = "";
-    }
-  }
-
-  function displayItems() {
-    let html = '<table><tr><th>பொருள்</th><th>Qty</th><th>Rate</th><th>Total</th></tr>';
-    items.forEach(item => {
-      html += `<tr><td>${item.name}</td><td>${item.qty}</td><td>₹${item.rate}</td><td>₹${item.qty * item.rate}</td></tr>`;
-    });
-    html += '</table>';
-    document.getElementById("itemList").innerHTML = html;
-  }
-
-  function generateBill() {
-    const name = document.getElementById("name").value;
-    const phone = document.getElementById("phone").value;
-    const address = document.getElementById("address").value;
-    const petrol = parseFloat(document.getElementById("petrol").value);
-    const date = new Date().toLocaleString("en-IN");
-
-    if (!name || !phone || !address || items.length === 0) {
-      alert("அனைத்து தகவலையும் பூர்த்தி செய்யவும்!");
-      return;
-    }
-
-    document.getElementById("billName").innerText = name;
-    document.getElementById("billPhone").innerText = phone;
-    document.getElementById("billAddress").innerText = address;
-    document.getElementById("billDate").innerText = date;
-
-    let total = 0;
-    let billHTML = "";
-    items.forEach(item => {
-      const lineTotal = item.qty * item.rate;
-      billHTML += `<tr><td>${item.name}</td><td>${item.qty}</td><td>₹${item.rate}</td><td>₹${lineTotal}</td></tr>`;
-      total += lineTotal;
+    upload.addEventListener('change', e => {
+      imageFile = e.target.files[0];
+      if (imageFile) {
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(imageFile);
+        img.style.maxWidth = '120px';
+        img.style.borderRadius = '8px';
+        preview.innerHTML = '';
+        preview.appendChild(img);
+        downloadBtn.disabled = false;
+      }
     });
 
-    total += petrol;
-    document.getElementById("billItems").innerHTML = billHTML;
-    document.getElementById("petrolCharge").innerText = `₹${petrol}`;
-    document.getElementById("totalAmount").innerText = `₹${total}`;
+    downloadBtn.addEventListener('click', async () => {
+      if (!imageFile) return alert("முதலில் photo upload பண்ணுங்க!");
+      const img = await createImageBitmap(imageFile);
+      const zip = new JSZip();
+      const canvas = document.getElementById('canvas');
+      const ctx = canvas.getContext('2d', { alpha: true }); // transparency on
 
-    document.getElementById("billSection").style.display = "block";
-  }
+      // sharpen image scaling
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
 
-  document.getElementById("downloadBtn").addEventListener("click", () => {
-    html2canvas(document.getElementById("billArea")).then(canvas => {
-      const link = document.createElement("a");
-      link.download = "OrderNow_Bill.png";
-      link.href = canvas.toDataURL("image/png");
-      link.click();
+      for (let size of sizes) {
+        canvas.width = size;
+        canvas.height = size;
+        ctx.clearRect(0, 0, size, size); // keep transparent
+
+        // keep aspect ratio centered
+        const ratio = Math.min(size / img.width, size / img.height);
+        const w = img.width * ratio;
+        const h = img.height * ratio;
+        const x = (size - w) / 2;
+        const y = (size - h) / 2;
+
+        ctx.drawImage(img, x, y, w, h);
+
+        const blob = await new Promise(res => canvas.toBlob(res, 'image/png', 1.0));
+        zip.file(`icon-${size}x${size}.png`, blob);
+      }
+
+      const content = await zip.generateAsync({ type: "blob" });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(content);
+      a.download = 'pwa-icons.zip';
+      a.click();
     });
-  });
-</script>
 
+    // Load JSZip library
+    const script = document.createElement('script');
+    script.src = "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";
+    document.body.appendChild(script);
+  </script>
 </body>
 </html>
